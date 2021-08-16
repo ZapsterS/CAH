@@ -48,7 +48,7 @@ p {
 }
 
 .bottom_div {
-	font-family: 'supria_sans';
+	font-family: 'bauhausc_demi';
   position: fixed;
   bottom: 0;
 	width:100%;
@@ -56,6 +56,7 @@ p {
 }
 
 .bottom_div p {
+	font-family: 'bauhausc_demi';
 	font-size: 15px;
 	position: fixed;
   bottom: 0;
@@ -124,6 +125,13 @@ p {
 	margin: 10px 1px;
 	float: right;
 	font-size: 20px;
+  -webkit-transition-duration: 0.1s; /* Safari */
+  transition-duration: 0.1s;
+}
+
+.buttonMain:hover {
+	box-shadow: 0 4px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+	border: 2px solid #ededed;
 }
 
 /* SUB CLASSES */
@@ -254,6 +262,12 @@ p {
 	float: bottom;
 	width: 30%;
 	font-size: 35px;
+  -webkit-transition-duration: 0.1s; /* Safari */
+  transition-duration: 0.1s;
+}
+.startbtn:hover {
+	box-shadow: 0 4px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+	border: 2px solid #ededed;
 }
 .promptbtn {
 	position: relative;
@@ -308,6 +322,10 @@ p {
   font-size: 20px;
   text-align: center;
   vertical-align:top;
+}
+
+#mainGame_YourCards div:hover {
+	border: 2px solid #0.8;
 }
 
 @media (max-width:1150px){
@@ -377,10 +395,10 @@ p {
 	</div>
 </div>
 
+<br><br>
 <!-- PLAYER SCREEN -->
 <div class="writableContent horizontal" style="display: none;" id="playerlist_div">
-    <p class="sub" style="font-size: 40px;">PLAYERS</p>
-  	<p id="subtext_players" class="sub question" style="font-size: 35px;"></p>
+    <p class="sub" style="font-size: 40px;"><u>PLAYERS</u></p><br>
 	<p id="subtext2_players" class="sub question" style="font-size: 30px;">WAITING FOR HOST<br>TO START</p>
 	<button class="startbtn" onclick="firebase.database().ref(databasePrefix + roomcode + '/users').update({_startgame: 1});" id="startbtn" style="cursor: pointer; display: none;">START GAME</button>
 	<li class="playerlist" id="playerlist_li">
@@ -538,8 +556,7 @@ function joingameFunction() {
 					usernum = newusercount;
 					//Writes user info as roomcode/users/user[userid]
 					firebase.database().ref(databasePrefix + roomcode + '/users/user' + newusercount).set({
-					username: username,
-					votes: 0
+					username: username
 					});
 					//Adds one to the usercount
 					firebase.database().ref(databasePrefix + roomcode + '/users/').update({
@@ -686,7 +703,6 @@ function deleteRoom(roomcode) {
 //Called whenever a player joins the room (INCLUDING SELF)
 function playerlist_reload() {
 	if (state == 1) {
-		document.getElementById("subtext_players").innerHTML = roomcode;
 		document.getElementById("playerlist_li").innerHTML = "";
 		roomcode_users_ref = firebase.database().ref(databasePrefix + roomcode + '/users');
 		roomcode_users_ref.once('value', function(doc) {
