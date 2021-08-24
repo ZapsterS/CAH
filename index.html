@@ -325,7 +325,13 @@ p {
 }
 
 #mainGame_YourCards div:hover {
-	border: 2px solid #0.8;
+	box-shadow: 0px 10px 10px 10px rgba(0,0,0,0.24), 0 0px 10px 0 rgba(0,0,0,1);
+    outline:4px #000 solid;
+}
+
+.selectableCard:hover {
+	box-shadow: 0px 10px 10px 10px rgba(0,0,0,0.24), 0 0px 10px 0 rgba(0,0,0,1);
+    outline:4px #000 solid;
 }
 
 @media (max-width:1150px){
@@ -371,10 +377,10 @@ p {
 </div>
 
 <!-- BOTTOM DIV -->
-<div class="bottom_div" id="game_info" style="display: block;">
+<div class="bottom_div" id="game_info" style="display: block; position=absolute;">
 	<p class="noSpace" style="right: 0;">V 0.0.1</p>
 	<p class="noSpace" style="left: 0; bottom: 20px; display: none" id="footer_username">Logged in as: *username*</p>
-	<p class="noSpace" style="left: 0; display: none" id="footer_roomcode">Roomcode: *roomcode*</p>
+	<p class="noSpace" style="left: 0; display: none;" id="footer_roomcode">Roomcode: *roomcode*</p>
 </div>
 
 <!-- Front Page Message -->
@@ -418,19 +424,17 @@ p {
     <div id="mainGame_BlackCard" class="blackQuestionCard">
       <p>Your persistence is admirable, my dear Prince. But you cannot win my heart with ____ alone.</p>
     </div>
-    <div id="WhiteCard" class="whiteResponseCard">
-      <p>Mate, <i>do not</i> go in that toilet. There's ____ in there.</p>
+    <div id="WhiteCard" class="whiteResponseCard selectableCard">
+      <p>This is an example card for when you are the CardCzar</p>
     </div>
     <div id="WhiteCard" class="whiteResponseCard">
-      <p>Your persistence is admirable, my dear Prince. But you cannot win my heart with ____ alone.</p>
-    </div>
-    <div id="WhiteCard" class="whiteResponseCard">
-      <p>Your persistence is admirable, my dear Prince. But you cannot win my heart with ____ alone.</p>
+      <p>This is an example card for when you are not the CardCzar</p>
     </div>
 </div>
 <br><br><br><br><br>
 <div class="mainGameContainer" id="mainGame_YourCards" style="display: none; margin-bottom:150px;">
-  <p class="sub horizontal" style="transform: translateY(-55px); position: absolute">Your cards</p>
+  <p class="sub horizontal" style="transform: translateY(-55px); position: absolute">Your cards 
+  <button onclick="drawCard();" style="position=absolute;">Draw New Card</button></p>
   <div id="WhiteCard" class="whiteResponseCard">
     <p>Your persistence is admirable, my dear Prince. But you cannot win my heart with ____ alone.</p>
   </div>
@@ -484,7 +488,7 @@ var isJoining = false;
 var starting = 0;
 var roomcreator = 0;
 var usernum;
-var state = 0;
+var state = 2;
 updateGame();
 create();
 
@@ -516,6 +520,18 @@ function updateGame() {
   }
 }
 setInterval(updateGame,1000);
+
+//RESETS INMPORTANT GAME VARIABLES
+function resetWebpage() {
+
+}
+
+//DrawCard function
+function drawCard(cardID) {
+	if(cardID==null) {
+    	alert("drawing");
+    }
+}
 
 //RAN EVERY SECOND TO CHECK VARIABLES IN DATABASE
 function checkDatabaseVariables() {
@@ -679,6 +695,10 @@ function create() {
 		break;
     case 2:
     updateGame();
+    document.getElementById("footer_username").innerHTML = "Logged in as: " + username;
+    document.getElementById("footer_roomcode").innerHTML = "Roomcode: " + roomcode;
+    document.getElementById("footer_username").style.display = 'block';
+    document.getElementById("footer_roomcode").style.display = 'block';
 		document.getElementById('joingame_div').style.display = 'none';
 		document.getElementById('front_page_message_div').style.display = 'none';
 		document.getElementById('playerlist_div').style.display = 'none';
@@ -687,11 +707,6 @@ function create() {
     document.getElementById('mainGame_YourCards').style.display = 'block';
     break;
 	}
-}
-
-//RESETS INMPORTANT GAME VARIABLES
-function resetWebpage() {
-
 }
 
 //Delete Room in database
