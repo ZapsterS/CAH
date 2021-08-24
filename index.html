@@ -49,8 +49,7 @@ p {
 
 .bottom_div {
 	font-family: 'bauhausc_demi';
-  position: fixed;
-  bottom: 0;
+  	bottom: 0;
 	width:100%;
 	height: 40px;
 }
@@ -58,11 +57,12 @@ p {
 .bottom_div p {
 	font-family: 'bauhausc_demi';
 	font-size: 15px;
-	position: fixed;
-  bottom: 0;
+	position: absolute;
+  	bottom: 0;
 	padding: 0px 3px;
 	margin: 0;
-	z-index: -1;
+    position: fixed;
+    z-index: 10;
 }
 
 .debug_div {
@@ -334,7 +334,7 @@ p {
     outline:4px #000 solid;
 }
 
-@media (max-width:1150px){
+@media (max-width:1100px){
   .mainGameContainer {
     width: 98%;
   }
@@ -435,9 +435,6 @@ p {
 <div class="mainGameContainer" id="mainGame_YourCards" style="display: none; margin-bottom:150px;">
   <p class="sub horizontal" style="transform: translateY(-55px); position: absolute">Your cards 
   <button onclick="drawCard();" style="position=absolute;">Draw New Card</button></p>
-  <div id="WhiteCard" class="whiteResponseCard">
-    <p>Your persistence is admirable, my dear Prince. But you cannot win my heart with ____ alone.</p>
-  </div>
 </div>
 
 
@@ -450,7 +447,12 @@ p {
 <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-functions.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-database.js"></script>
 
-<!-- QUESTION PROMPTS!!!! -->
+<!-- CARDS!!!! -->
+<script src="https://zapsters.github.io/CAH/Cards/CardsMain.js"></script>
+<!--
+var cards_blackCards
+var cards_whiteCards
+-->
 
 <script>
 		  //FIREBASE DATABASE ---------------------------
@@ -529,8 +531,23 @@ function resetWebpage() {
 //DrawCard function
 function drawCard(cardID) {
 	if(cardID==null) {
-    	alert("drawing");
+    	cardID=Math.floor(Math.random() * cards_whiteCards.length);
     }
+    //alert(cards_whiteCards[cardID]);
+    createCard(cards_whiteCards[cardID], "mainGame_YourCards", true, false);
+}
+
+function createCard(cardText, parent, canSelect, isBlackCard) {
+	if(parent==null) return;
+    var div = document.createElement("div");
+    if(canSelect) div.classList.add('selectableCard');
+    if(isBlackCard) {
+    	div.classList.add('blackResponseCard');
+    } else {
+    	div.classList.add('whiteResponseCard');
+    }
+
+    document.getElementById(parent).appendChild(div);
 }
 
 //RAN EVERY SECOND TO CHECK VARIABLES IN DATABASE
