@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -352,6 +353,12 @@ p {
   }
 }
 
+.bottomText {
+	position: absolute;
+    bottom: -18px;
+    font-size: 10px;
+}
+
 .whiteResponseCard p {
   padding: 5px 10px 0px 10px;
   transform: translateY(-15px);
@@ -534,19 +541,32 @@ function drawCard(cardID) {
     	cardID=Math.floor(Math.random() * cards_whiteCards.length);
     }
     //alert(cards_whiteCards[cardID]);
-    createCard(cards_whiteCards[cardID], "mainGame_YourCards", true, false);
+    createCard(cards_whiteCards[cardID], "mainGame_YourCards", true, false, cardID);
 }
-
-function createCard(cardText, parent, canSelect, isBlackCard) {
+showCardIDs = true;
+function createCard(cardText, parent, canSelect, isBlackCard, cardID) {
 	if(parent==null) return;
     var div = document.createElement("div");
     if(canSelect) div.classList.add('selectableCard');
     if(isBlackCard) {
-    	div.classList.add('blackResponseCard');
+    	div.classList.add('blackQuestionCard');
     } else {
     	div.classList.add('whiteResponseCard');
     }
-
+    var paragraph = document.createElement("P");
+    var cardTextObj = document.createTextNode(cardText);
+    paragraph.appendChild(cardTextObj);
+    div.appendChild(paragraph);	
+    
+    if(showCardIDs) {
+    	var paragraph = document.createElement("P");
+    	var cardTextObj = document.createTextNode('CardID = ' + cardID);
+        paragraph.classList.add('bottomText');
+    	paragraph.appendChild(cardTextObj);
+    	div.appendChild(paragraph);	
+    }
+    
+    
     document.getElementById(parent).appendChild(div);
 }
 
