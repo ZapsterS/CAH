@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -494,6 +495,8 @@ var usersArray = [] //List of players in the room.
 var cardCzarUser = 1;
 var isJoining = false;
 
+showCardIDs = true;
+
 var starting = 0;
 var roomcreator = 0;
 var usernum;
@@ -534,17 +537,24 @@ setInterval(updateGame,1000);
 function resetWebpage() {
 
 }
+var cardPacks = [cards_whiteCards, cards_blackCards];
 
 //DrawCard function
-function drawCard(cardID) {
-	if(cardID==null) {
-    	cardID=Math.floor(Math.random() * cards_whiteCards.length);
+function drawCard(cardPack, cardID) {
+	//Get a random set of cards from the var cardPacks to draw from.
+    if(cardPack==null) {
+    	cardPackID = Math.floor(Math.random() * cardPacks.length); 
+    	cardPack = cardPacks[cardPackID];
     }
-    //alert(cards_whiteCards[cardID]);
-    createCard(cards_whiteCards[cardID], "mainGame_YourCards", true, false, cardID);
+    //Get a random cardID to draw from cardPack.
+	if(cardID==null) {
+    	cardID = Math.floor(Math.random() * cardPack.length);
+    }
+    //create the card under the YourCards div.
+    createCard(cardPack[cardID], "mainGame_YourCards", true, false, cardPackID, cardID);
 }
-showCardIDs = true;
-function createCard(cardText, parent, canSelect, isBlackCard, cardID) {
+
+function createCard(cardText, parent, canSelect, isBlackCard, cardPackID, cardID) {
 	if(parent==null) return;
     var div = document.createElement("div");
     if(canSelect) div.classList.add('selectableCard');
@@ -559,15 +569,34 @@ function createCard(cardText, parent, canSelect, isBlackCard, cardID) {
     div.appendChild(paragraph);	
     
     if(showCardIDs) {
-    	var paragraph = document.createElement("P");
-    	var cardTextObj = document.createTextNode('CardID = ' + cardID);
-        paragraph.classList.add('bottomText');
-    	paragraph.appendChild(cardTextObj);
-    	div.appendChild(paragraph);	
+    	var cardPackparagraph = document.createElement("P");
+    	var cardPack = document.createTextNode('CardPack = ' + cardPackID);
+        cardPackparagraph.classList.add('bottomText');
+        cardPackparagraph
+    	cardPackparagraph.appendChild(cardPack);
+    	div.appendChild(cardPackparagraph);	
+        
+        
+    	var cardIdparagraph = document.createElement("P");
+        var cardId = document.createTextNode('CardID = ' + cardID);
+        cardIdparagraph.classList.add('bottomText');
+        cardIdparagraph.style.cssText = 'bottom: 0';
+    	cardIdparagraph.appendChild(cardId);
+    	div.appendChild(cardIdparagraph);	
     }
     
+    //Call the yourCardClick
+    div.onclick = function () {
+    	yourCardClick(div, cardText);
+    }
     
     document.getElementById(parent).appendChild(div);
+}
+
+//Called when a player clicks their own card.
+function yourCardClick(cardObj, cardText) {
+	//alert('cardClicked -- text: ' + cardText);
+    cardObj.remove(); //Delete card
 }
 
 //RAN EVERY SECOND TO CHECK VARIABLES IN DATABASE
