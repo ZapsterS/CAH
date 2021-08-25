@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -390,8 +391,8 @@ p {
 <!-- BOTTOM DIV -->
 <div class="bottom_div" id="game_info" style="display: block; position=absolute;">
 	<p class="noSpace" style="right: 0;">V 0.0.1</p>
-	<p class="noSpace" style="left: 0; bottom: 20px; display: none" id="footer_username">Logged in as: *username*</p>
-	<p class="noSpace" style="left: 0; display: none;" id="footer_roomcode">Roomcode: *roomcode*</p>
+	<p class="noSpace" style="left: 0; bottom: 20px; display: none; font-size: 20px" id="footer_username">Logged in as: *username*</p>
+	<p class="noSpace" style="left: 0; display: none; font-size: 20px" id="footer_roomcode">Roomcode: *roomcode*</p>
 </div>
 
 <!-- Front Page Message -->
@@ -541,7 +542,7 @@ function updateGame() {
   debug_text = [];
   debug_text[0] = "usernum:" + usernum;
   debug_text[1] = "playedCardsArray: " + playedCardsArray;
-  debug_menu_text.innerHTML = debug_text;
+  debug_menu_text.innerHTML = debug_text.join('<br>');
 }
 setInterval(updateGame,1000);
 
