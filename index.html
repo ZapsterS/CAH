@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -494,6 +493,7 @@ var usersArray = [] //List of players in the room.
 var cardCzarUser = 1;
 var isJoining = false;
 
+playedCardsArray = ['User0'] //List of playedCards, cards that have been submitted this turn.
 showCardIDs = true;
 
 var starting = 0;
@@ -520,7 +520,7 @@ function showTextForTime(textObject, text, time) {
 //Ran everysecond! Used for main game stuff
 function updateGame() {
   document.getElementById("footer_username").innerHTML = "Logged in as: " + username;
-  document.getElementById("footer_roomcode").innerHTML = "Roomcode: " + roomcode;
+  document.getElementById("footer_roomcode").innerHTML = "Roomcode: " + playedCardsArray;
   if(state>=2) {
     //UPDATE CARDCZAR text
     if(cardCzarUser == usernum) {
@@ -839,18 +839,31 @@ function startGameFunction() {
 							setTimeout(function () {
 								document.getElementById('playerlist_div').style.display = 'none';
 								setTimeout(function () {
+                                	//Check for card updates
+                  					updateGame();
+                                    roomcode_data_prompts_startgame_ref = firebase.database().ref(databasePrefix + roomcode + '/users/');
+                                    roomcode_data_prompts_startgame_ref.on('value', function(doc) {
+                                    
+                                    	if(state == 2) {
+                                      		console.log('user data changed, checking player PlayedCards');
+                                            playedCardsArray = ['user0'];
+                                            for (i = 1; i <= userscount_read; i++) {
+                                              user_ref = firebase.database().ref(databasePrefix + roomcode + '/users/user' + i);
+                                              user_ref.once('value', function(doc) {
+                                                user_data = doc.val();
+                                                user_data_card = user_data.playedCard;
+                                                alert(user_data_card);
+                                               	playedCardsArray[i] = user_data_card;
+												})
+                                            }
+                                        }
+                                    });
+                                    
                   					state = 2;
 									//If room creator... Do something...
 									if (roomcreator == 1) {
                     					console.log('do something');
 									}
-                                    //Check for card updates
-                  					updateGame();
-                                    roomcode_data_prompts_startgame_ref = firebase.database().ref(databasePrefix + roomcode + '/users/');
-                                    roomcode_data_prompts_startgame_ref.on('value', function(doc) {
-                                      alert('user data changed');
-                                      console.log('user data changed');
-                                    });
                                     
 									setTimeout(function () {
 										create();
