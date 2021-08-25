@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -595,6 +596,9 @@ function createCard(cardText, parent, canSelect, isBlackCard, cardPackID, cardID
 function yourCardClick(cardObj, cardText) {
 	//alert('cardClicked -- text: ' + cardText);
     cardObj.remove(); //Delete card
+    firebase.database().ref(databasePrefix + roomcode + '/users/user' + usernum).update({
+      playedCard: cardText
+    });
 }
 
 //RAN EVERY SECOND TO CHECK VARIABLES IN DATABASE
@@ -634,9 +638,10 @@ function joingameFunction() {
 					userscount_read = roomcode_users_data._usercount;
 					newusercount = userscount_read + 1;
 					usernum = newusercount;
-					//Writes user info as roomcode/users/user[userid]
+					//Writes user info as roomcode/users/user[usernum]
 					firebase.database().ref(databasePrefix + roomcode + '/users/user' + newusercount).set({
-					username: username
+					username: username,
+                    playedCard: null
 					});
 					//Adds one to the usercount
 					firebase.database().ref(databasePrefix + roomcode + '/users/').update({
@@ -769,6 +774,7 @@ function create() {
 		document.getElementById('mainGame_Header').style.display = 'block';
     document.getElementById('mainGame_CardsList').style.display = 'block';
     document.getElementById('mainGame_YourCards').style.display = 'block';
+    
     break;
 	}
 }
@@ -833,13 +839,19 @@ function startGameFunction() {
 							setTimeout(function () {
 								document.getElementById('playerlist_div').style.display = 'none';
 								setTimeout(function () {
-                  state = 2;
+                  					state = 2;
 									//If room creator... Do something...
 									if (roomcreator == 1) {
-                    console.log('do something');
-
+                    					console.log('do something');
 									}
-                  updateGame();
+                                    //Check for card updates
+                  					updateGame();
+                                    roomcode_data_prompts_startgame_ref = firebase.database().ref(databasePrefix + roomcode + '/users/');
+                                    roomcode_data_prompts_startgame_ref.on('value', function(doc) {
+                                      alert('user data changed');
+                                      console.log('user data changed');
+                                    });
+                                    
 									setTimeout(function () {
 										create();
 									}, 1000);
