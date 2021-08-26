@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -363,6 +364,29 @@ p {
   transform: translateY(-15px);
 }
 
+.overlay {
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 20;
+  text-align: center;
+}
+
+.overlay p {
+	padding: 0;
+    margin: 0;
+  position: absolute;
+  width: 80%;
+  top: 50%;
+  left: 50%;
+  font-size: 30px;
+  color: white;
+  transform: translate(-50%,-50%);
+  -ms-transform: translate(-50%,-50%);
+}
+
 </style>
 	<title>Cards Against Humanity</title>
 	<link rel="shortcut icon" type="image/png" href="https://zapsters.github.io/Home/images/ZapsterGames.png"/>
@@ -439,11 +463,17 @@ p {
     </div>
 </div>
 <br><br><br><br><br>
+<div class="mainGameContainer" id="mainGame_YourCardsParent" style="display: none; position: relative;">
 <p class="sub horizontal" style="transform: translateY(-55px); position: absolute">Your cards
-<button onclick="drawCard();" style="position=absolute;">Draw New Card</button></p>
+<button onclick="drawCard();" style="position=absolute;">Draw New Card</button>
+<button onclick="hostHasPlayedCard == false;" style="position=absolute;">set hostHasPlayedCard false</button>
+</p>
 
-<div class="mainGameContainer noSpace" id="mainGame_YourCards" style="display: none; margin-bottom:150px; min-height: 270px;">
-
+<div class="noSpace" id="mainGame_YourCards" style=" margin-bottom:150px; min-height: 270px;">
+</div>
+<div class="noSpace overlay" id="mainGame_YourCards_overlay" style="display: none; top: 0; right: 0;">
+	<p id="mainGame_YourCards_overlay_text">You have already submitted a card!</p>
+</div>
 </div>
 
 </body>
@@ -510,7 +540,7 @@ var hostHasPlayedCard = false;
 var starting = 0;
 var roomcreator = 0;
 var usernum;
-var state = 0;
+var state = 2;
 updateGame();
 create();
 
@@ -539,6 +569,11 @@ function updateGame() {
     }
   }
 
+  if(hostHasPlayedCard) {
+  	document.getElementById("mainGame_YourCards_overlay").style.display = "block";
+  } else {
+  	document.getElementById("mainGame_YourCards_overlay").style.display = "none";
+  }
 
   //Debug Text
   debug_text = [];
@@ -790,7 +825,7 @@ function createRoom(roomcode) {
 //Create function -- For each state of the game.
 function create() {
   document.getElementById('mainGame_CardsList').style.display = 'none';
-  document.getElementById('mainGame_YourCards').style.display = 'none';
+  document.getElementById('mainGame_YourCardsParent').style.display = 'none';
   console.log('creating ' + state);
 	switch(state) {
     case 0:
@@ -819,7 +854,7 @@ function create() {
 		document.getElementById('playerlist_div').style.display = 'none';
 		document.getElementById('mainGame_Header').style.display = 'block';
     document.getElementById('mainGame_CardsList').style.display = 'block';
-    document.getElementById('mainGame_YourCards').style.display = 'block';
+    document.getElementById('mainGame_YourCardsParent').style.display = 'block';
 
     break;
 	}
