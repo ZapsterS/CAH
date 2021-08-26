@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -328,11 +329,6 @@ p {
   vertical-align:top;
 }
 
-#mainGame_YourCards div:hover {
-	box-shadow: 0px 10px 10px 10px rgba(0,0,0,0.24), 0 0px 10px 0 rgba(0,0,0,1);
-    outline:4px #000 solid;
-}
-
 .selectableCard:hover {
 	box-shadow: 0px 10px 10px 10px rgba(0,0,0,0.24), 0 0px 10px 0 rgba(0,0,0,1);
     outline:4px #000 solid;
@@ -443,11 +439,12 @@ p {
     </div>
 </div>
 <br><br><br><br><br>
-<div class="mainGameContainer" id="mainGame_YourCards" style="display: none; margin-bottom:150px;">
-  <p class="sub horizontal" style="transform: translateY(-55px); position: absolute">Your cards
-  <button onclick="drawCard();" style="position=absolute;">Draw New Card</button></p>
-</div>
+<p class="sub horizontal" style="transform: translateY(-55px); position: absolute">Your cards
+<button onclick="drawCard();" style="position=absolute;">Draw New Card</button></p>
 
+<div class="mainGameContainer noSpace" id="mainGame_YourCards" style="display: none; margin-bottom:150px; min-height: 270px;">
+
+</div>
 
 </body>
 
@@ -508,11 +505,12 @@ var allCurrentCards = []; //List of all of the players cards, used to prevent du
 var maxPlayerCards = 7;
 var cardPacks = [cards_whiteCards, cards_blackCards];
 var activeCardPacks = [cards_whiteCards];
+var hostHasPlayedCard = false;
 
 var starting = 0;
 var roomcreator = 0;
 var usernum;
-var state = 0;
+var state = 2;
 updateGame();
 create();
 
@@ -554,7 +552,8 @@ setInterval(updateGame,100);
 
 //RESETS INMPORTANT GAME VARIABLES
 function resetWebpage() {
-
+	var hostPlayedCard = null;
+	var hostHasPlayedCard = false;
 }
 
 //DrawCard function
@@ -622,12 +621,17 @@ function createCard(cardText, parent, canSelect, isBlackCard, cardPackID, cardID
 
 //Called when a player clicks their own card.
 function yourCardClick(cardObj, cardText, fullCardID) {
+	if(hostHasPlayedCard) {
+		document.getElementById("")
+		return;
+	}
 	//alert('cardClicked -- text: ' + cardText);
 		currentHostCards = currentHostCards.filter(item => item !== fullCardID); //Remove card from list
     cardObj.remove(); //Delete card
     firebase.database().ref(databasePrefix + roomcode + '/users/user' + usernum).update({
       playedCard: cardText
     });
+		hostHasPlayedCard = true;
 }
 
 //RAN EVERY SECOND TO CHECK VARIABLES IN DATABASE
