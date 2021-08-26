@@ -510,7 +510,7 @@ var hostHasPlayedCard = false;
 var starting = 0;
 var roomcreator = 0;
 var usernum;
-var state = 2;
+var state = 0;
 updateGame();
 create();
 
@@ -585,7 +585,7 @@ function drawCard(cardPackID, cardID) {
     currentHostCards.push(fullCardID)
     //create the card under the YourCards div.
     createCard(cardPack[cardID], "mainGame_YourCards", true, false, cardPackID, cardID, fullCardID, true);
-}(20)
+}
 
 function createCard(cardText, parent, canSelect, isBlackCard, cardPackID, cardID, fullCardID, isHostsCard) {
 	if(parent==null) return;
