@@ -71,7 +71,7 @@ p {
 	padding: 0px 3px;
 	height: auto;
 	background-color: rgba(255, 255, 255, 0.4);
-	z-index: -1;
+	z-index: 10;
 }
 .debug_div p {
 	font-family: 'arial';
@@ -444,7 +444,7 @@ p {
 </div>
 <br><br><br><br><br>
 <div class="mainGameContainer" id="mainGame_YourCards" style="display: none; margin-bottom:150px;">
-  <p class="sub horizontal" style="transform: translateY(-55px); position: absolute">Your cards 
+  <p class="sub horizontal" style="transform: translateY(-55px); position: absolute">Your cards
   <button onclick="drawCard();" style="position=absolute;">Draw New Card</button></p>
 </div>
 
@@ -487,7 +487,7 @@ var cards_whiteCards
 /* ======================================================== */
 
 
-debug_vars = ['state', 'roomcode', 'roomcreator', 'usernum', 'username', 'userscount_read', 'usersArray', 'playedCardsArray', 'showCardIDs', 'cardCzarUser', 'isJoining']
+debug_vars = ['state', 'roomcode', 'roomcreator', 'usernum', 'username', 'userscount_read', 'usersArray', 'playedCardsArray', 'currentHostCards', 'allCurrentCards', 'showCardIDs', 'cardCzarUser', 'isJoining']
 debug_menu = document.getElementById("debug_menu_div");
 debug_menu_text = document.getElementById("debug_menu_text");
 debug_menu_open = false;
@@ -501,8 +501,13 @@ var usersArray = [] //List of players in the room.
 var cardCzarUser = 1;
 var isJoining = false;
 
-playedCardsArray = ['###'] //List of playedCards, cards that have been submitted this turn.
-showCardIDs = true;
+var playedCardsArray = ['###'] //List of playedCards, cards that have been submitted this turn.
+var showCardIDs = true;
+var currentHostCards = []; //List of hosts cards
+var allCurrentCards = []; //List of all of the players cards, used to prevent duplicates
+var maxPlayerCards = 7;
+var cardPacks = [cards_whiteCards, cards_blackCards];
+var activeCardPacks = [cards_whiteCards];
 
 var starting = 0;
 var roomcreator = 0;
@@ -527,8 +532,6 @@ function showTextForTime(textObject, text, time) {
 
 //Ran everysecond! Used for main game stuff
 function updateGame() {
-  document.getElementById("footer_username").innerHTML = "Logged in as: " + username;
-  document.getElementById("footer_roomcode").innerHTML = "Roomcode: " + roomcode;
   if(state>=2) {
     //UPDATE CARDCZAR text
     if(cardCzarUser == usernum) {
@@ -537,8 +540,8 @@ function updateGame() {
       document.getElementById("mainGame_Header_Role").innerHTML = usersArray[cardCzarUser-1] + " is the Card Czar!"
     }
   }
-  
-  
+
+
   //Debug Text
   debug_text = [];
   //debug_vars
@@ -547,30 +550,45 @@ function updateGame() {
   }
   debug_menu_text.innerHTML = debug_text.join('<br>');
 }
-setInterval(updateGame,1000);
+setInterval(updateGame,100);
 
 //RESETS INMPORTANT GAME VARIABLES
 function resetWebpage() {
 
 }
-var cardPacks = [cards_whiteCards, cards_blackCards];
 
 //DrawCard function
-function drawCard(cardPack, cardID) {
+function drawCard(cardPackID, cardID) {
+	if(state==0) return;
 	//Get a random set of cards from the var cardPacks to draw from.
-    if(cardPack==null) {
-    	cardPackID = Math.floor(Math.random() * cardPacks.length); 
-    	cardPack = cardPacks[cardPackID];
+		if(currentHostCards.length >= maxPlayerCards) {
+			return;
+		}
+    if(cardPackID==null) {
+    	cardPackID = Math.floor(Math.random() * activeCardPacks.length);
     }
+		cardPack = activeCardPacks[cardPackID];
     //Get a random cardID to draw from cardPack.
 	if(cardID==null) {
     	cardID = Math.floor(Math.random() * cardPack.length);
     }
+    fullCardID = cardPackID + '_' + cardID;
+		if(currentHostCards.includes(fullCardID)) {
+			//console.log('Host drew a duplicate to their own deck.');
+			drawCard();
+			return;
+		}
+		if(allCurrentCards.includes(fullCardID)) {
+			//console.log("Host drew a duplicate to someone else's deck");
+			drawCard();
+			return;
+		}
+    currentHostCards.push(fullCardID)
     //create the card under the YourCards div.
-    createCard(cardPack[cardID], "mainGame_YourCards", true, false, cardPackID, cardID);
-}
+    createCard(cardPack[cardID], "mainGame_YourCards", true, false, cardPackID, cardID, fullCardID, true);
+}(20)
 
-function createCard(cardText, parent, canSelect, isBlackCard, cardPackID, cardID) {
+function createCard(cardText, parent, canSelect, isBlackCard, cardPackID, cardID, fullCardID, isHostsCard) {
 	if(parent==null) return;
     var div = document.createElement("div");
     if(canSelect) div.classList.add('selectableCard');
@@ -582,36 +600,30 @@ function createCard(cardText, parent, canSelect, isBlackCard, cardPackID, cardID
     var paragraph = document.createElement("P");
     var cardTextObj = document.createTextNode(cardText);
     paragraph.appendChild(cardTextObj);
-    div.appendChild(paragraph);	
-    
+    div.appendChild(paragraph);
+
     if(showCardIDs) {
     	var cardPackparagraph = document.createElement("P");
-    	var cardPack = document.createTextNode('CardPack = ' + cardPackID);
+    	var cardPack = document.createTextNode('CardPack_CardID = ' + fullCardID);
         cardPackparagraph.classList.add('bottomText');
-        cardPackparagraph
     	cardPackparagraph.appendChild(cardPack);
-    	div.appendChild(cardPackparagraph);	
-        
-        
-    	var cardIdparagraph = document.createElement("P");
-        var cardId = document.createTextNode('CardID = ' + cardID);
-        cardIdparagraph.classList.add('bottomText');
-        cardIdparagraph.style.cssText = 'bottom: 0';
-    	cardIdparagraph.appendChild(cardId);
-    	div.appendChild(cardIdparagraph);	
+    	div.appendChild(cardPackparagraph);
     }
-    
-    //Call the yourCardClick
-    div.onclick = function () {
-    	yourCardClick(div, cardText);
+
+    if(isHostsCard) {
+    	//Call the yourCardClick
+        div.onclick = function () {
+            yourCardClick(div, cardText, fullCardID);
+        }
     }
-    
+
     document.getElementById(parent).appendChild(div);
 }
 
 //Called when a player clicks their own card.
-function yourCardClick(cardObj, cardText) {
+function yourCardClick(cardObj, cardText, fullCardID) {
 	//alert('cardClicked -- text: ' + cardText);
+		currentHostCards = currentHostCards.filter(item => item !== fullCardID); //Remove card from list
     cardObj.remove(); //Delete card
     firebase.database().ref(databasePrefix + roomcode + '/users/user' + usernum).update({
       playedCard: cardText
@@ -623,13 +635,26 @@ function checkDatabaseVariables() {
   if(state==0) return;
   //Check for updates for the 'CardCzar' user...
   roomcode_data_prompts_startgame_ref = firebase.database().ref(databasePrefix + roomcode + '/users/_card_czar');
-  roomcode_data_prompts_startgame_ref.on('value', function(doc) {
+  roomcode_data_prompts_startgame_ref.once('value', function(doc) {
     if(cardCzarUser != doc.val()) {
       cardCzarUser = doc.val();
       console.log('CardCzar value = ' + cardCzarUser);
     }
   });
-}
+  //Check for player currentCards
+  allCurrentCards = [];
+  for (i = 1; i <= userscount_read; i++) {
+    usersCurrentCards_ref = firebase.database().ref(databasePrefix + roomcode + '/users/user' + i);
+    usersCurrentCards_ref.once('value', function(doc) {
+			allCurrentCards += doc.val().currentCards + ",";
+    });
+  }
+	if(allCurrentCards == null) allCurrentCards = [];
+  //Update currentCards in database.
+  firebase.database().ref(databasePrefix + roomcode + '/users/user' + usernum).update({
+      currentCards: currentHostCards
+		});
+	}
 setInterval(checkDatabaseVariables,1000);
 
 //JOIN GAME BUTTON
@@ -656,13 +681,13 @@ function joingameFunction() {
 					newusercount = userscount_read + 1;
 					usernum = newusercount;
 					//Writes user info as roomcode/users/user[usernum]
-					firebase.database().ref(databasePrefix + roomcode + '/users/user' + newusercount).set({
-					username: username,
-                    playedCard: null
+					firebase.database().ref(databasePrefix + roomcode + '/users/user' + usernum).set({
+						username: username,
+            playedCard: 'null'
 					});
 					//Adds one to the usercount
 					firebase.database().ref(databasePrefix + roomcode + '/users/').update({
-					_usercount: newusercount,
+						_usercount: newusercount
 					});
 					state = 1;
 					create();
@@ -791,7 +816,7 @@ function create() {
 		document.getElementById('mainGame_Header').style.display = 'block';
     document.getElementById('mainGame_CardsList').style.display = 'block';
     document.getElementById('mainGame_YourCards').style.display = 'block';
-    
+
     break;
 	}
 }
@@ -860,7 +885,7 @@ function startGameFunction() {
                   					updateGame();
                                     roomcode_data_prompts_startgame_ref = firebase.database().ref(databasePrefix + roomcode + '/users/');
                                     roomcode_data_prompts_startgame_ref.on('value', function(doc) {
-                                    
+
                                     	if(state == 2) {
                                       		console.log('user data changed, checking player PlayedCards');
                                             playedCardsArray = ['###'];
@@ -869,19 +894,21 @@ function startGameFunction() {
                                               user_ref.once('value', function(doc) {
                                                 user_data = doc.val();
                                                 user_data_card = user_data.playedCard;
-                                                alert(user_data_card);
-                                               	playedCardsArray[i] = user_data_card;
-												})
-                                            }
+                                                if(user_data_card != null || user_data_card != 'null') {
+                                                	playedCardsArray[i] = user_data_card;
+
+                                                }
+											})
                                         }
+                                    }
                                     });
-                                    
+
                   					state = 2;
 									//If room creator... Do something...
 									if (roomcreator == 1) {
                     					console.log('do something');
 									}
-                                    
+
 									setTimeout(function () {
 										create();
 									}, 1000);
